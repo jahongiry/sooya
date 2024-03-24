@@ -43,7 +43,7 @@ function User() {
     {
       title: "id",
       dataIndex: "id",
-      render: (inx, item) => inx + 1
+      render: (inx, item) => item + 1
     },
     {
       title: "email",

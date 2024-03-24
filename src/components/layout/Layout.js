@@ -29,9 +29,9 @@ const Layout = ({ children }) => {
         return new Promise((resolve, reject) => {
           setTimeout(Math.random() > 0.5 ? resolve : reject, 100);
           setTimeout(() => {
-            localStorage.clear();
+            localStorage.removeItem("token");
             message.success("Logout Successfully");
-            navigate("/");
+            window.location = "/";
           }, 100);
         }).catch(() => console.log("Oops errors!"));
       },
