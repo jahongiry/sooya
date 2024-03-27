@@ -19,7 +19,6 @@ const App = () => {
   return (
     <div>
       <Routes>
-        <Route path="/" element={<Home />} />
         <Route path="/createUser" element={<CreateUser />} />
         <Route path="/lessons" element={<Lessons />} />
 
