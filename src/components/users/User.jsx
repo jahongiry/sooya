@@ -64,7 +64,7 @@ function User() {
       .patch(`${API}/${id}`, body, { headers })
       .then((res) => {
         if (res.status === 200) {
-          handleCancel()
+          handleCancel();
         }
       })
       .catch((err) => message.warning(err?.response?.data?.email[0]));
