@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Table, message, Popconfirm, Button } from "antd";
+import { Table, message, Popconfirm, Button, Modal, Form, Input } from "antd";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons"; // Ant Design'dan kullanacağımız ikonlar
 import axios from "axios";
 import "./User.css";
-import EditUser from "./EditUser";
 
 function User() {
   const [users, setUsers] = useState([]);
-  const [editState, setEditstate] = useState(false);
+  const [form] = Form.useForm();
+  const [id, setId] = useState(null);
 
   let API = "https://languageapp-production.up.railway.app/api/v1/users";
   let token =
-    "eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo1fQ.qecv3n7CRc4r90vZoMheXi5QOPRUGq-Q2H8MlGbdg5k";
+    "eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxMX0.1xVte9sqIKeUirdW2uuyKPze6K78VvdqrsagGq_BeUQ";
   const headers = {
     Authorization: `Bearer ${token}`,
     Accept: "application/json",
@@ -39,11 +39,51 @@ function User() {
       .catch((err) => console.log(err));
   };
 
+  const [open, setOpen] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const handleOk = () => {
+    setConfirmLoading(true);
+    setTimeout(() => {
+      setOpen(false);
+      setConfirmLoading(false);
+    }, 1000);
+  };
+  const handleCancel = () => {
+    console.log("Clicked cancel button");
+    setOpen(false);
+  };
+
+  const onFinish = (values) => {
+    let body = {
+      user: {
+        ...values,
+      },
+    };
+
+    axios
+      .patch(`${API}/${id}`, body, { headers })
+      .then((res) => {
+        if (res.status === 200) {
+          handleCancel()
+        }
+      })
+      .catch((err) => message.warning(err?.response?.data?.email[0]));
+  };
+
   const columns = [
     {
       title: "id",
       dataIndex: "id",
-      render: (inx, item) => inx + 1
+    },
+    {
+      title: "name",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "surname",
+      dataIndex: "surname",
+      key: "surname",
     },
     {
       title: "email",
@@ -74,14 +114,91 @@ function User() {
             </Popconfirm>
 
             {/* edit confirm */}
-            <Popconfirm
-              title="Userni malumotlarini o'zgartirmoqchimisiz?"
-              onConfirm={() => {
-                setEditstate(item);
+            <EditOutlined
+              onClick={() => {
+                setOpen(true);
+                setId(item.id);
+                form.setFieldValue("name", item.name);
+                form.setFieldValue("surname", item.surname);
+                form.setFieldValue("email", item.email);
+                // form.setFieldValue("surname", item.surname);
               }}
+              style={{ color: "green" }}
+            />
+            <Modal
+              title=""
+              open={open}
+              onOk={handleOk}
+              confirmLoading={confirmLoading}
+              onCancel={handleCancel}
             >
-              <EditOutlined style={{ color: "dodgerblue" }} />
-            </Popconfirm>
+              <Form
+                form={form}
+                onFinish={(v) => onFinish(v)}
+                layout="vertical"
+                autoComplete="off"
+              >
+                <h3 style={{ textAlign: "center", marginBottom: "30px" }}>
+                  Update student
+                </h3>
+                <Form.Item
+                  label="Name"
+                  name="name"
+                  id="1"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please input your name!",
+                    },
+                  ]}
+                >
+                  <Input autoComplete="off" />
+                </Form.Item>
+
+                <Form.Item
+                  label="Surname"
+                  name="surname"
+                  id="2"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please input your surname",
+                    },
+                  ]}
+                >
+                  <Input autoComplete="off" />
+                </Form.Item>
+
+                <Form.Item
+                  label="Email"
+                  name="email"
+                  id="3"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please input your email!",
+                    },
+                  ]}
+                >
+                  <Input autoComplete="off" />
+                </Form.Item>
+
+                <Form.Item label="Password" name="password" id="4">
+                  <Input.Password autoComplete="off" />
+                </Form.Item>
+
+                <Form.Item
+                  wrapperCol={{
+                    offset: 17,
+                    span: 16,
+                  }}
+                >
+                  <Button type="primary" htmlType="submit">
+                    Update
+                  </Button>
+                </Form.Item>
+              </Form>
+            </Modal>
           </div>
         );
       },
@@ -90,8 +207,14 @@ function User() {
 
   return (
     <div>
-      {editState && <EditUser userInfo={editState} />}
-      <Table pagination={false} size="smoll" bordered={true} dataSource={users} rowKey="id" columns={columns} />
+      <Table
+        pagination={false}
+        size="smoll"
+        bordered={true}
+        dataSource={users}
+        rowKey="id"
+        columns={columns}
+      />
     </div>
   );
 }

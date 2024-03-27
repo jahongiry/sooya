@@ -14,9 +14,4 @@ export const teacher = [
     path: "/lessons",
     icon: "fa fa-lesson",
   },
-  {
-    name: "Media",
-    path: "/media",
-    icon: "fa fa-media",
-  }
 ];
